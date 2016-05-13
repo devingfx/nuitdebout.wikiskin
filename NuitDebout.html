@@ -336,7 +336,7 @@
   <script type="text/javascript" src="./js/underscore-min.js"></script>
   <script type="text/javascript" src="./js/jQuery.succinct.min.js"></script>
   <script src="./js/main.js"></script>
-  <script src="mediawiki-js/MediawikiJS.js"></script>
+  <script src="js/MediawikiJS.js"></script>
   <script src="instaview.js"></script>
   <script src="./js/tmpl.js"></script>
   <script src="./js/tmpl.rules.x-tmpl-mediawiki.js"></script>
@@ -347,8 +347,8 @@
 			baseURL: 'https://wiki.nuitdebout.fr', 
 			apiPath: '/api.php', 
 			aze:23,
-			rootArticle: []
-// 			rootArticle: ['Villes','Nice']
+//			rootArticle: []
+ 			rootArticle: ['Villes','Nice']
 		});
 	
 	window.onhashchange = wiki.navigateToCurrentHash;
