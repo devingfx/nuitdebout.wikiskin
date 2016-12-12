@@ -14,18 +14,14 @@ MediaWikiJS.prototype.getPage = function( path, cb )
 				
 				var $html = $('<div class="container nd_wiki">').append( html );
 				
-
-				// $html.find('.mw-prefixindex-list-table');
-
 				//Remove edit/editwikicode links on sections titles
 				$html.find('.mw-editsection').remove();
-
+				
 				cb( $html )
 			});
 		break;
-
-		case 'LOCAL_PARSE':
 		
+		case 'LOCAL_PARSE':
 			wiki.getArticle( path, function( text )
 			{
 				if( text === false ) return false;
@@ -35,14 +31,11 @@ MediaWikiJS.prototype.getPage = function( path, cb )
 							.replace(/\{\{(.*?)\}\}/g, function( s, $1 )
 							{ 
 								var p = $1.split(/[|:/]/);
-								console.log( s, $1, p[0], MediaWikiJS.models[p[0]] );
 								if( MediaWikiJS.models[p[0]] )
 									return MediaWikiJS.models[p[0]]($1);
 								else
 									return '';
 							})
-
-				
 				
 				var $html = $('<div class="container nd_wiki">').append( html );
 				cb( $html )
@@ -58,19 +51,8 @@ MediaWikiJS.prototype.getParsed = function( path, cb )
 	}, function( data )
 	{
 		if( data.missing || data.error ) return false;
-
+		
 		var text = data.parse.text["*"];
-
-// 		text.replace(/^<!--<(.*)>-->$/, '<$1>');
-
-// 		var $html = $('<div class="container nd_wiki">').append( text );
-		// Replace @ image by the char
-// 		$html.find('img[alt="@"]').before('@').remove();
-		
-		// $html.find('.mw-prefixindex-list-table');
-		
-		//Remove edit/editwikicode links on sections titles
-// 		$html.find('.mw-editsection').remove();
 		
 		cb( text )
 	});
@@ -90,14 +72,13 @@ MediaWikiJS.prototype.getArticle = function( path, cb )
 			page = pages[first];
 		console.groupCollapsed('Wiki article: ', path);
 		console.log(page);
-
 		
 		if( !page.missing )
 		{
 			console.log( page.revisions[0]['*'] );
 			console.groupEnd();
 			cb( page.revisions[0]['*'] );
-			// console.log('Last edited by: ' + page.revisions[0].user);
+			console.log('Last edited by: ' + page.revisions[0].user);
 		}
 		else {
 			console.groupEnd();
@@ -117,7 +98,6 @@ MediaWikiJS.prototype.getPageList = function( path, cb )
 	function (data)
 	{
 		var pages = data.query.allpages;
-		//console.log(pages);
 		
 		if( !data.error )
 			cb( pages );
@@ -131,68 +111,61 @@ MediaWikiJS.prototype.getPageBanner = function( wikiText )
 		picture = bannerReg.exec( wikiText );
 	
 	$('.nd_header, #header').hide();
-
+	
 	if( picture )
 	{
-		console.log( 'File:' + picture[1] );
 		wiki.getImagesInfo( 'File:' + picture[1], $('.nd_header__img').height(), function(data)
 		{
-			console.log('imgInfo:', data);
 			$('.nd_header__img').css({
 				backgroundImage: 'url("'+data[0].url+'")'
 			})
-
+			
 		});
-
-	    $('.nd_header, #header').show();
-
+		
+		$('.nd_header, #header').show();
 	}
 };
 MediaWikiJS.prototype.getImagesInfo = function( name, height, cb )
 {
-  	var req = {
-  			action: 'query',
-  			prop: 'imageinfo',
-  			iiprop: 'url|size',
-  			iiurlheight: height,
-  			titles: name
-  		};
-  	if( typeof height == 'function' )
-  	{
-  		delete req.iiurlwidth;
-  		cb = height;
-  		height = null;
-  	}
-  	this.send(req, function (data)
-  	{
-		    var pages = data.query.pages;
-		    for(var n in pages);
-		    var infos = pages[n].imageinfo;
-		    // console.log( width ? infos.thumburl : infos.url );
-		    cb( infos );
+	var req = {
+			action: 'query',
+			prop: 'imageinfo',
+			iiprop: 'url|size',
+			iiurlheight: height,
+			titles: name
+		};
+	if( typeof height == 'function' )
+	{
+		delete req.iiurlwidth;
+		cb = height;
+		height = null;
+	}
+	this.send(req, function (data)
+	{
+		var pages = data.query.pages;
+		for(var n in pages);
+		var infos = pages[n].imageinfo;
+		cb( infos );
 	});
-  };
+};
 MediaWikiJS.prototype.getMainImageLink = function( $html )
 {
 	$html.find('a').each( function()
+	{
+		var hash = this.href.split('#').pop();
+		if( /^(File|Fichier)/.exec(hash) )
 		{
-			var hash = this.href.split('#').pop();
-			if( /^(File|Fichier)/.exec(hash) )
+			$(this).remove();
+			wiki.getImagesInfo( hash, $('.nd_header__img').height(), function(data)
 			{
-				$(this).remove();
-				wiki.getImagesInfo( hash, $('.nd_header__img').height(), function(data)
-				{
-					console.log('imgInfo:', data);
-					$('.nd_header__img').css({
-						backgroundImage: 'url("'+data[0].thumburl+'")'
-					})
-					
+				$('.nd_header__img').css({
+					backgroundImage: 'url("'+data[0].thumburl+'")'
 				})
-			}
-		});
+				
+			})
+		}
+	});
 };
-
-
 MediaWikiJS.prototype._transformLinks = function( $html )
 {
 	var search = new RegExp('\/wiki\/' + wiki.rootArticle.join('/')+'\/?');
@@ -219,22 +192,12 @@ MediaWikiJS.prototype._transformLinks = function( $html )
 };
 MediaWikiJS.prototype.updateMenus = function( _$toc )
 {
-// 	$('#nav-mobile, #nav-desktop').empty();
 	$('#nav-mobile').empty();
 	_$toc.find('.tocnumber').remove();
 	window.$toc = _$toc
 					.find('ul > li.toclevel-1')
-					.appendTo('#nav-mobile')
-// 					.clone()
-// 						.appendTo('#nav-desktop')
-// 			.find('a').click(function()
-// 			{
-// 				console.log($($(this).attr('href')));
-// 				return false;
-// 			})
-	;
+					.appendTo('#nav-mobile');
 	_$toc.find('td a, .selflink').wrap('<li class="navbox">').parent().appendTo('#nav-mobile');
-	
 };
 MediaWikiJS.prototype.updateTitle = function( page, ville )
 {
@@ -247,22 +210,20 @@ MediaWikiJS.prototype.updateTitle = function( page, ville )
 };
 MediaWikiJS.prototype.updateCalendar = function( $html )
 {
-    var $calendar = $html.find('#Calendrier').parent(),
-        $masonry = $('<div class="row masonry-container">').insertAfter( $calendar );
-
-    $calendar
-        .nextUntil('h2')
-        .filter('h4')
-            .map( function( i, o )
-            {
-                return $( o ).nextUntil('h2,h4,p').add(o)
-                           .wrapAll('<div class="col s12 m6"><div class="card"><div class="card-content"></div></div></div>')
-                           .parent().parent().parent()
-                               .appendTo( $masonry )
-            })
+	var $calendar = $html.find('#Calendrier').parent(),
+		$masonry = $('<div class="row masonry-container">').insertAfter( $calendar );
+	
+	$calendar
+		.nextUntil('h2')
+		.filter('h4')
+			.map( function( i, o )
+			{
+				return $( o ).nextUntil('h2,h4,p').add(o)
+							 .wrapAll('<div class="col s12 m6"><div class="card"><div class="card-content"></div></div></div>')
+							 .parent().parent().parent()
+								 .appendTo( $masonry )
+			})
 }
-
-
 MediaWikiJS.prototype.navigateToCurrentHash = function( e )
 {
 	var scrollHistory = this.scrollHistory = this.scrollHistory || {},
@@ -273,15 +234,14 @@ MediaWikiJS.prototype.navigateToCurrentHash = function( e )
 		page = path.length > 2 && path[path.length-1] || '';
 	console.log('wiki path:', path );
 	console.log('ville: %s\npage: %s', ville, page );
-	console.log('e:', e );
 	
 	if( e ) scrollHistory[e.oldURL] = window.scrollY;
-
+	
 	wiki.getPage( path.join('/'), function( $html )
 	{
 		if( $html === false )
 		{
-// 			$('.error404').show()
+			// $('.error404').show()
 			return false;
 		}
 		else
@@ -289,51 +249,44 @@ MediaWikiJS.prototype.navigateToCurrentHash = function( e )
 			wiki._transformLinks( $html );
 			wiki.updateTitle( page, ville );
 			wiki.updateMenus( $html.find('#toc, .navbox').remove() );
-            wiki.updateCalendar( $html  );
-
+			wiki.updateCalendar( $html );
+			
 			wiki.getArticle( path.join('/'), function( text )
 			{
 				// Find the top town picture
-				//if( ville && !page )
-// 					wiki.getMainImageLink( $html );
-					wiki.getPageBanner( text );
-
+				wiki.getPageBanner( text );
 			});
-
-
 			
-
 			// Remove inputbox and tips
 			$html.find('.mw-inputbox-centered')
 				.parent()
 				.each( function(){ $(this.nextElementSibling).remove() } )
 				.remove()
-
 			
 			// Show in document
 			$('#wiki').html( $html );
-
+			
 			smoothTo( e && scrollHistory[e.newURL] || 0 );
 		}
 	})
 };
 
+
 MediaWikiJS.models.Calendar = function( $html )
 {
-    var $calendar = $('#Calendrier').parent(),
-	    $masonry = $('<div class="row masonry-container">').insertAfter( $calendar );
+	var $calendar = $('#Calendrier').parent(),
+		$masonry = $('<div class="row masonry-container">').insertAfter( $calendar );
 	
 	$calendar
-	    .nextUntil('h2')
-	    .filter('h4')
-		    .map( function( i, o )
+		.nextUntil('h2')
+		.filter('h4')
+			.map( function( i, o )
 			{ 
-	            return $( o ).nextUntil('h2,h4,p').add(o)
-			               .wrapAll('<div class="col s12 m6"><div class="card"><div class="card-content"></div></div></div>')
-						   .parent().parent().parent()
-						       .appendTo( $masonry ) 
+				return $( o ).nextUntil('h2,h4,p').add(o)
+							.wrapAll('<div class="col s12 m6"><div class="card"><div class="card-content"></div></div></div>')
+							.parent().parent().parent()
+								.appendTo( $masonry ) 
 			})
-	                 
 }
 
 MediaWikiJS.models.Facebook = function( params )
@@ -344,16 +297,19 @@ MediaWikiJS.models.Facebook = function( params )
 				width="16" height="16" \
 				srcset="/images/thumb/c/c2/F_icon.svg/24px-F_icon.svg.png 1.5x, /images/thumb/c/c2/F_icon.svg/32px-F_icon.svg.png 2x">\
 				&nbsp;<a rel="nofollow" class="external text" href="'+params.shift()+'" target="_blank">'+params.join(' ')+'</a>\
-				</span>';
+			</span>';
 }
+
 MediaWikiJS.models.PAGEBANNER = function( params )
 {
 	return '';
 }
+
 MediaWikiJS.models['@'] = function( params )
 {
 	return '@';
 }
+
 MediaWikiJS.models.Twitter = function( params )
 {
 	params = params.split('|')[1].split(' ');
@@ -362,6 +318,7 @@ MediaWikiJS.models.Twitter = function( params )
 				<a rel="nofollow" class="external text" href="https://twitter.com/'+params[0]+'" target="_blank">@'+params[0]+'</a>\
 			</span>';
 }
+
 MediaWikiJS.models.chat2 = function( params )
 {
 	params = params.split('|');
@@ -372,8 +329,8 @@ MediaWikiJS.models.chat2 = function( params )
 				<a rel="nofollow" class="external text" href="https://chat.nuitdebout.fr/'+type+'/'+params[0]+'" target="_blank">#'+params[0]+'</a>\
 			</span>';
 }
+
 MediaWikiJS.models.Special = function( params )
 {
 	return '';
 }
-
