@@ -297,6 +297,7 @@ h4 {font-size: 3rem;text-align: center;}
     line-height: 48px;
     font-size: 24px;
     font-weight: 300;
+	text-align: left;
 }
 
 .brand-logo, .navbar__logo {
@@ -331,6 +332,11 @@ h4 {font-size: 3rem;text-align: center;}
     .brand-logo, .navbar__logo {
         font-size: 2.3em;
     }
+}
+@media only screen and (min-width: 993px) {
+nav a.button-collapse {
+		display: initial;
+}
 }
 
 ul {

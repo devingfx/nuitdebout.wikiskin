@@ -4,7 +4,7 @@
 	<meta charset="utf-8">
 	<meta http-equiv="x-ua-compatible" content="ie=edge">
 	<title>Nuit Debout Nice</title>
-	<meta name="description" content="Le site officiel de Nuit Debout Nice, le mouvement citoyen rassemblé place Garibaldi à Nice et dans plein d'autres villes en France.">
+	<meta name="description" content="La skin de Nuit Debout, le mouvement citoyen rassemblé sur les places publiques dans plein de villes en France.">
 	
 	<!--Let browser know website is optimized for mobile-->
 	<meta name="viewport" content="width=device-width, initial-scale=1">
@@ -24,10 +24,10 @@
 	
 	<meta property="og:locale" content="fr_FR">
 	<meta property="og:type" content="website">
-	<meta property="og:title" content="Nuit Debout - Nice">
-	<meta property="og:description" content="Liste de diffusion générale de la ville de Nice.">
-	<meta property="og:url" content="http://www.nuitdeboutnice.fr/">
-	<meta property="og:site_name" content="Nuit Debout - Nice">
+	<meta property="og:title" content="Nuit Debout - skin">
+	<meta property="og:description" content="Les pages du wiki NuitDebout mais en plus joli...">
+	<meta property="og:url" content="http://www.nuitdeboutnice.fr/wiki.html">
+	<meta property="og:site_name" content="Nuit Debout - skin">
 	<meta property="og:image" content="./img/headertest.jpg">
 	
 </head>
@@ -332,40 +332,10 @@
 			baseURL: 'https://wiki.nuitdebout.fr', 
 			apiPath: '/api.php', 
 			aze:23,
-//			rootArticle: []
- 			rootArticle: ['Villes','Nice']
+			rootArticle: []
+// 			rootArticle: ['Villes','Nice']
 		});
 	
-wiki.getPageList('Villes/Nice', function( pages )
-{
-    var tree = {}, CRs = [];
-    pages.map( function( page )
-    {
-        /CR/.test( page.title ) && CRs.push( page )
-		page.title.split('/')
-                   .filter( function(s){ return s != '' })
-                       .map( function(s,i,a){
-	                         var v = 'tree["'+
-                                     a.slice(0,i+1)
-                                         .map( function(s){ return s.replace(/"/g, '\\"')})
-                                         .join('"]["')+
-		                                 '"]';
-	                       //console.log(v);
-	                       var o = eval( v+'='+v+'||{}');
-						   if( i == a.length-1 )
-						   {
-							   o.ns = page.ns;
-						       o.pageid = page.pageid;
-						       o.title = page.title;
-						   }
-                      })
-
-    });
-	wiki.pages = pages;
-    wiki.menu = tree;
-	wiki.CRs = CRs
-});
-
 	window.onhashchange = wiki.navigateToCurrentHash;
 	wiki.navigateToCurrentHash();
   </script>
