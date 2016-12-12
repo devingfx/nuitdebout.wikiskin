@@ -227,7 +227,8 @@ MediaWikiJS.prototype.updateCalendar = function( $html )
 MediaWikiJS.prototype.navigateToCurrentHash = function( e )
 {
 	var scrollHistory = this.scrollHistory = this.scrollHistory || {},
-		hash = document.location.hash,
+		isFirefox = navigator.userAgent.toLowerCase().indexOf('firefox') > -1,
+		hash = isFirefox ? decodeURIComponent( document.location.hash ) : document.location.hash,
 		path = wiki.rootArticle.concat( hash.replace('#','').split('/') ),
 		path = path.filter(function(s){return s != ''}),
 		ville = path[0] == 'Villes' && path[1],
